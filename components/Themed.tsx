@@ -5,8 +5,8 @@
 
 import { Text as DefaultText, View as DefaultView } from 'react-native';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from './useColorScheme';
+import { useAppTheme } from '@/contexts/ThemeContext';
+import { getFontFamily } from '@/utils/fontHelper';
 
 type ThemeProps = {
   lightColor?: string;
@@ -18,23 +18,27 @@ export type ViewProps = ThemeProps & DefaultView['props'];
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: string
 ) {
-  const theme = useColorScheme() ?? 'light';
-  const colorFromProps = props[theme];
+  const { currentTheme } = useAppTheme();
+  const colorFromProps = props.light || props.dark;
 
   if (colorFromProps) {
     return colorFromProps;
   } else {
-    return Colors[theme][colorName];
+    return (currentTheme as any)[colorName] || currentTheme.text;
   }
 }
 
 export function Text(props: TextProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
+  const { style, lightColor, darkColor, children, ...otherProps } = props;
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  
+  // Get text content for font detection
+  const textContent = typeof children === 'string' ? children : '';
+  const fontFamily = getFontFamily(textContent);
 
-  return <DefaultText style={[{ color }, style]} {...otherProps} />;
+  return <DefaultText style={[{ color, fontFamily }, style]} {...otherProps}>{children}</DefaultText>;
 }
 
 export function View(props: ViewProps) {
@@ -43,3 +47,4 @@ export function View(props: ViewProps) {
 
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
 }
+

@@ -1,6 +1,7 @@
 # LazyTask
 
-![](./assets/images/LazyTask-header.png)
+![hi](./assets/images/LazyTask-Header.png)
+
 Minimal task manager built with Expo.
 
 ## Run
